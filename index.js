@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var name_utils_1 = require("./src/utility/name-utils");
+exports.names = name_utils_1.names;
+exports.toClassName = name_utils_1.toClassName;
+exports.toFileName = name_utils_1.toFileName;
+exports.toPropertyName = name_utils_1.toPropertyName;
+var ast_utils_1 = require("./src/utility/ast-utils");
+exports.addImportToModule = ast_utils_1.addImportToModule;
+exports.addProviderToModule = ast_utils_1.addProviderToModule;
+exports.insert = ast_utils_1.insert;
