@@ -5,9 +5,9 @@
   "main": "index.js",
   "types": "index.d.js",
   "peerDependencies": {
-    "rxjs": ">5.4.2",
-    "@angular-devkit/schematics": "0.0.18",
-    "@schematics/angular": "0.0.30"
+    "rxjs": "*",
+    "@angular-devkit/schematics": "*",
+    "@schematics/angular": "*"
   },
   "author": "Victor Savkin",
   "license": "MIT",
