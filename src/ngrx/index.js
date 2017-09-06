@@ -14,9 +14,10 @@ var path = require("path");
 var ts = require("typescript");
 var ast_utils_1 = require("../utility/ast-utils");
 var route_utils_1 = require("@schematics/angular/utility/route-utils");
+var lib_versions_1 = require("../utility/lib-versions");
 function addImportsToModule(name, options) {
     return function (host) {
-        if (options.skipImport) {
+        if (options.onlyAddFiles) {
             return host;
         }
         if (!host.exists(options.module)) {
@@ -25,7 +26,7 @@ function addImportsToModule(name, options) {
         var modulePath = options.module;
         var sourceText = host.read(modulePath).toString('utf-8');
         var source = ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
-        if (options.emptyRoot) {
+        if (options.onlyEmptyRoot) {
             var reducer = "StoreModule.forRoot({})";
             ast_utils_1.insert(host, modulePath, [
                 route_utils_1.insertImport(source, modulePath, 'StoreModule', '@ngrx/store')
@@ -54,15 +55,44 @@ function addImportsToModule(name, options) {
         }
     };
 }
+function addNgRxToPackageJson() {
+    return function (host) {
+        if (!host.exists("package.json"))
+            return host;
+        var sourceText = host.read('package.json').toString('utf-8');
+        var json = JSON.parse(sourceText);
+        if (!json['dependencies']) {
+            json['dependencies'] = {};
+        }
+        if (!json['dependencies']['@ngrx/store']) {
+            json['dependencies']['@ngrx/store'] = lib_versions_1.ngrxVersion;
+        }
+        if (!json['dependencies']['@ngrx/router-store']) {
+            json['dependencies']['@ngrx/router-store'] = lib_versions_1.ngrxVersion;
+        }
+        if (!json['dependencies']['@ngrx/effects']) {
+            json['dependencies']['@ngrx/effects'] = lib_versions_1.ngrxVersion;
+        }
+        host.overwrite('package.json', JSON.stringify(json, null, 2));
+        return host;
+    };
+}
 function default_1(options) {
     var name = path.basename(options.module, '.module.ts');
     var moduleDir = path.dirname(options.module);
-    if (options.emptyRoot) {
-        return schematics_1.chain([addImportsToModule(name, options)]);
+    if (options.onlyEmptyRoot) {
+        return schematics_1.chain([
+            addImportsToModule(name, options),
+            options.skipPackageJson ? schematics_1.noop() : addNgRxToPackageJson()
+        ]);
     }
     else {
         var templateSource = schematics_1.apply(schematics_1.url('./files'), [schematics_1.template(__assign({}, options, { tmpl: '' }, name_utils_1.names(name))), schematics_1.move(moduleDir)]);
-        return schematics_1.chain([schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])), addImportsToModule(name, options)]);
+        return schematics_1.chain([
+            schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])),
+            addImportsToModule(name, options),
+            options.skipPackageJson ? schematics_1.noop() : addNgRxToPackageJson()
+        ]);
     }
 }
 exports.default = default_1;

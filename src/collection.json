@@ -2,10 +2,34 @@
   "name": "nx",
   "version": "0.1",
   "schematics": {
-    "addNgRxToModule": {
-      "factory": "./addNgRxToModule",
-      "schema": "./addNgRxToModule/schema.json",
-      "description": "Add NgRx support to a module."
+    "application": {
+      "factory": "./workspace",
+      "schema": "./workspace/schema.json",
+      "description": "Create an empty workspace"
+    },
+
+    "app": {
+      "factory": "./app",
+      "schema": "./app/schema.json",
+      "description": "Create an application"
+    },
+
+    "lib": {
+      "factory": "./lib",
+      "schema": "./lib/schema.json",
+      "description": "Create a library"
+    },
+
+    "ngrx": {
+      "factory": "./ngrx",
+      "schema": "./ngrx/schema.json",
+      "description": "Add NgRx support to a module"
+    },
+
+    "upgrade-shell": {
+      "factory": "./upgrade-shell",
+      "schema": "./upgrade-shell/schema.json",
+      "description": "Add an upgrade shell to an application"
     }
   }
 }
