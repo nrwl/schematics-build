@@ -1,11 +1,13 @@
 {
   "name": "@nrwl/schematics",
-  "version": "0.0.1+c992a7e",
+  "version": "0.0.1+cc57831",
   "description": "Angular Extensions: Schematics",
   "main": "index.js",
   "types": "index.d.js",
   "peerDependencies": {
-    "@angular/cli": "*"
+    "rxjs": ">5.4.2",
+    "@angular-devkit/schematics": ">0.0.18",
+    "@schematics/angular": ">0.0.30"
   },
   "author": "Victor Savkin",
   "license": "MIT",
