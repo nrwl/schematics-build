@@ -28,32 +28,24 @@ function addBootstrap(path) {
 function addAppToAngularCliJson(options) {
     return function (host) {
         var appConfig = {
-            "name": options.name,
-            "root": "apps/" + options.name + "/" + options.sourceDir,
-            "outDir": "dist/apps/" + options.name,
-            "assets": [
-                "assets",
-                "favicon.ico"
-            ],
-            "index": "index.html",
-            "main": "main.ts",
-            "polyfills": "polyfills.ts",
-            "test": "../../../test.js",
-            "tsconfig": "../../../tsconfig.app.json",
-            "testTsconfig": "../../../tsconfig.spec.json",
-            "prefix": options.prefix,
-            "styles": [
-                "styles." + options.style
-            ],
-            "scripts": [],
-            "environmentSource": "environments/environment.ts",
-            "environments": {
-                "dev": "environments/environment.ts",
-                "prod": "environments/environment.prod.ts"
-            }
+            'name': options.name,
+            'root': path.join('apps', options.name, options.sourceDir),
+            'outDir': "dist/apps/" + options.name,
+            'assets': ['assets', 'favicon.ico'],
+            'index': 'index.html',
+            'main': 'main.ts',
+            'polyfills': 'polyfills.ts',
+            'test': '../../../test.js',
+            'tsconfig': '../../../tsconfig.app.json',
+            'testTsconfig': '../../../tsconfig.spec.json',
+            'prefix': options.prefix,
+            'styles': ["styles." + options.style],
+            'scripts': [],
+            'environmentSource': 'environments/environment.ts',
+            'environments': { 'dev': 'environments/environment.ts', 'prod': 'environments/environment.prod.ts' }
         };
-        if (!host.exists(".angular-cli.json")) {
-            throw new Error("Missing .angular-cli.json");
+        if (!host.exists('.angular-cli.json')) {
+            throw new Error('Missing .angular-cli.json');
         }
         var sourceText = host.read('.angular-cli.json').toString('utf-8');
         var json = JSON.parse(sourceText);
@@ -66,15 +58,10 @@ function addAppToAngularCliJson(options) {
     };
 }
 function default_1(options) {
-    var fullPath = path.join("apps", schematics_2.toFileName(options.name), options.sourceDir);
-    var templateSource = schematics_1.apply(schematics_1.url('./files'), [
-        schematics_1.template(__assign({ utils: stringUtils, dot: '.', tmpl: '' }, options))
-    ]);
+    var fullPath = path.join('apps', schematics_2.toFileName(options.name), options.sourceDir);
+    var templateSource = schematics_1.apply(schematics_1.url('./files'), [schematics_1.template(__assign({ utils: stringUtils, dot: '.', tmpl: '' }, options))]);
     return schematics_1.chain([
-        schematics_1.branchAndMerge(schematics_1.chain([
-            schematics_1.mergeWith(templateSource)
-        ])),
-        schematics_1.externalSchematic('@schematics/angular', 'module', {
+        schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])), schematics_1.externalSchematic('@schematics/angular', 'module', {
             name: 'app',
             commonModule: false,
             flat: true,
@@ -94,8 +81,7 @@ function default_1(options) {
             viewEncapsulation: options.viewEncapsulation,
             changeDetection: options.changeDetection
         }),
-        addBootstrap(fullPath),
-        addAppToAngularCliJson(options)
+        addBootstrap(fullPath), addAppToAngularCliJson(options)
     ]);
 }
 exports.default = default_1;

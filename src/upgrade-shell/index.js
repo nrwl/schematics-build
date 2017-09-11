@@ -26,7 +26,7 @@ function addImportsToModule(moduleClassName, angularJsModule, options) {
         ast_utils_1.insert(host, modulePath, [
             route_utils_1.insertImport(source, modulePath, "configure" + name_utils_1.toClassName(angularJsModule) + ", upgradedComponents", "./" + name_utils_1.toFileName(angularJsModule) + "-setup"),
             route_utils_1.insertImport(source, modulePath, 'UpgradeModule', '@angular/upgrade/static')
-        ].concat(ast_utils_1.addImportToModule(source, modulePath, "UpgradeModule"), ast_utils_1.addDeclarationToModule(source, modulePath, "...upgradedComponents"), ast_utils_1.addEntryComponents(source, modulePath, ast_utils_1.getBootstrapComponent(source, moduleClassName))));
+        ].concat(ast_utils_1.addImportToModule(source, modulePath, 'UpgradeModule'), ast_utils_1.addDeclarationToModule(source, modulePath, '...upgradedComponents'), ast_utils_1.addEntryComponents(source, modulePath, ast_utils_1.getBootstrapComponent(source, moduleClassName))));
         return host;
     };
 }
@@ -35,10 +35,7 @@ function addNgDoBootstrapToModule(moduleClassName, angularJsModule, options) {
         var modulePath = options.module;
         var sourceText = host.read(modulePath).toString('utf-8');
         var source = ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
-        ast_utils_1.insert(host, modulePath, ast_utils_1.addParameterToConstructor(source, modulePath, {
-            className: moduleClassName,
-            param: 'private upgrade: UpgradeModule'
-        }).concat(ast_utils_1.addMethod(source, modulePath, {
+        ast_utils_1.insert(host, modulePath, ast_utils_1.addParameterToConstructor(source, modulePath, { className: moduleClassName, param: 'private upgrade: UpgradeModule' }).concat(ast_utils_1.addMethod(source, modulePath, {
             className: moduleClassName,
             methodHeader: 'ngDoBootstrap(): void',
             body: "\nconfigure" + name_utils_1.toClassName(angularJsModule) + "(this.upgrade.injector);\nthis.upgrade.bootstrap(document.body, ['downgraded', '" + angularJsModule + "']);\n        "
@@ -68,7 +65,7 @@ function createFiles(moduleClassName, moduleFileName, angularJsModule, options) 
 }
 function addUpgradeToPackageJson() {
     return function (host) {
-        if (!host.exists("package.json"))
+        if (!host.exists('package.json'))
             return host;
         var sourceText = host.read('package.json').toString('utf-8');
         var json = JSON.parse(sourceText);

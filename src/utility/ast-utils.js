@@ -133,7 +133,8 @@ function addParameterToConstructor(source, modulePath, opts) {
 exports.addParameterToConstructor = addParameterToConstructor;
 function addMethod(source, modulePath, opts) {
     var clazz = findClass(source, opts.className);
-    var body = opts.body ? "\n" + opts.methodHeader + " {\n" + offset(opts.body, 1, false) + "\n}\n" : "\n" + opts.methodHeader + " {}\n";
+    var body = opts.body ? "\n" + opts.methodHeader + " {\n" + offset(opts.body, 1, false) + "\n}\n" :
+        "\n" + opts.methodHeader + " {}\n";
     var pos = clazz.members.length > 0 ? clazz.members.end : clazz.end - 1;
     return [new change_1.InsertChange(modulePath, clazz.end - 1, offset(body, 1, true))];
 }
@@ -157,23 +158,23 @@ function removeFromNgModule(source, modulePath, property) {
 exports.removeFromNgModule = removeFromNgModule;
 function findClass(source, className) {
     var nodes = ast_utils_1.getSourceNodes(source);
-    var clazz = nodes.filter(function (n) {
-        return n.kind === ts.SyntaxKind.ClassDeclaration &&
-            n.name.text === className;
-    })[0];
+    var clazz = nodes.filter(function (n) { return n.kind === ts.SyntaxKind.ClassDeclaration && n.name.text === className; })[0];
     if (!clazz) {
         throw new Error("Cannot find class '" + className + "'");
     }
     return clazz;
 }
 function offset(text, numberOfTabs, wrap) {
-    var lines = text.trim().split('\n').map(function (line) {
+    var lines = text.trim()
+        .split('\n')
+        .map(function (line) {
         var tabs = '';
         for (var c = 0; c < numberOfTabs; ++c) {
             tabs += '  ';
         }
         return "" + tabs + line;
-    }).join("\n");
+    })
+        .join('\n');
     return wrap ? "\n" + lines + "\n" : lines;
 }
 exports.offset = offset;
