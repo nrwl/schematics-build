@@ -13,7 +13,7 @@ var schematics_2 = require("@nrwl/schematics");
 var path = require("path");
 function default_1(options) {
     var fullPath = path.join('libs', schematics_2.toFileName(options.name), options.sourceDir);
-    var templateSource = schematics_1.apply(schematics_1.url('./files'), [schematics_1.template(__assign({}, schematics_2.names(options.name), { dot: '.', tmpl: '' }, options))]);
+    var templateSource = schematics_1.apply(schematics_1.url(options.ngmodule ? './ngfiles' : './files'), [schematics_1.template(__assign({}, schematics_2.names(options.name), { dot: '.', tmpl: '' }, options))]);
     return schematics_1.chain([schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)]))]);
 }
 exports.default = default_1;
