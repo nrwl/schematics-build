@@ -27,12 +27,12 @@ function addImportsToModule(name, options) {
         var sourceText = host.read(modulePath).toString('utf-8');
         var source = ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
         if (options.onlyEmptyRoot) {
-            var reducer = "StoreModule.forRoot({})";
-            var effects = "EffectsModule.forRoot([])";
             ast_utils_1.insert(host, modulePath, [
                 route_utils_1.insertImport(source, modulePath, 'StoreModule', '@ngrx/store'),
-                route_utils_1.insertImport(source, modulePath, 'EffectsModule', '@ngrx/effects')
-            ].concat(ast_utils_1.addImportToModule(source, modulePath, reducer), ast_utils_1.addImportToModule(source, modulePath, effects)));
+                route_utils_1.insertImport(source, modulePath, 'EffectsModule', '@ngrx/effects'),
+                route_utils_1.insertImport(source, modulePath, 'StoreDevtoolsModule', '@ngrx/store-devtools'),
+                route_utils_1.insertImport(source, modulePath, 'environment', '../environments/environment')
+            ].concat(ast_utils_1.addImportToModule(source, modulePath, "StoreModule.forRoot({})"), ast_utils_1.addImportToModule(source, modulePath, "EffectsModule.forRoot([])"), ast_utils_1.addImportToModule(source, modulePath, "!environment.production ? StoreDevtoolsModule.instrument() : []")));
             return host;
         }
         else {
@@ -42,17 +42,22 @@ function addImportsToModule(name, options) {
             var reducerName = name_utils_1.toPropertyName(name) + "Reducer";
             var effectsName = name_utils_1.toClassName(name) + "Effects";
             var initName = name_utils_1.toPropertyName(name) + "InitialState";
-            var effects = options.root ? "EffectsModule.forRoot([" + effectsName + "])" : "EffectsModule.forFeature([" + effectsName + "])";
-            var reducer = options.root ?
-                "StoreModule.forRoot(" + reducerName + ", {initialState: " + initName + "})" :
-                "StoreModule.forFeature('" + name_utils_1.toPropertyName(name) + "', " + reducerName + ", {initialState: " + initName + "})";
-            ast_utils_1.insert(host, modulePath, [
+            var common = [
                 route_utils_1.insertImport(source, modulePath, 'StoreModule', '@ngrx/store'),
                 route_utils_1.insertImport(source, modulePath, 'EffectsModule', '@ngrx/effects'),
                 route_utils_1.insertImport(source, modulePath, reducerName, reducerPath),
                 route_utils_1.insertImport(source, modulePath, initName, initPath),
                 route_utils_1.insertImport(source, modulePath, effectsName, effectsPath)
-            ].concat(ast_utils_1.addImportToModule(source, modulePath, reducer), ast_utils_1.addImportToModule(source, modulePath, effects), ast_utils_1.addProviderToModule(source, modulePath, effectsName)));
+            ].concat(ast_utils_1.addProviderToModule(source, modulePath, effectsName));
+            if (options.root) {
+                ast_utils_1.insert(host, modulePath, common.concat([
+                    route_utils_1.insertImport(source, modulePath, 'StoreDevtoolsModule', '@ngrx/store-devtools'),
+                    route_utils_1.insertImport(source, modulePath, 'environment', '../environments/environment')
+                ], ast_utils_1.addImportToModule(source, modulePath, "StoreModule.forRoot(" + reducerName + ", {initialState: " + initName + "})"), ast_utils_1.addImportToModule(source, modulePath, "EffectsModule.forRoot([" + effectsName + "])"), ast_utils_1.addImportToModule(source, modulePath, "!environment.production ? StoreDevtoolsModule.instrument() : []")));
+            }
+            else {
+                ast_utils_1.insert(host, modulePath, common.concat(ast_utils_1.addImportToModule(source, modulePath, "StoreModule.forFeature('" + name_utils_1.toPropertyName(name) + "', " + reducerName + ", {initialState: " + initName + "})"), ast_utils_1.addImportToModule(source, modulePath, "EffectsModule.forFeature([" + effectsName + "])")));
+            }
             return host;
         }
     };
@@ -74,6 +79,9 @@ function addNgRxToPackageJson() {
         }
         if (!json['dependencies']['@ngrx/effects']) {
             json['dependencies']['@ngrx/effects'] = lib_versions_1.ngrxVersion;
+        }
+        if (!json['dependencies']['@ngrx/store-devtools']) {
+            json['dependencies']['@ngrx/store-devtools'] = lib_versions_1.ngrxVersion;
         }
         host.overwrite('package.json', JSON.stringify(json, null, 2));
         return host;
