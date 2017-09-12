@@ -28,9 +28,11 @@ function addImportsToModule(name, options) {
         var source = ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
         if (options.onlyEmptyRoot) {
             var reducer = "StoreModule.forRoot({})";
+            var effects = "EffectsModule.forRoot([])";
             ast_utils_1.insert(host, modulePath, [
-                route_utils_1.insertImport(source, modulePath, 'StoreModule', '@ngrx/store')
-            ].concat(ast_utils_1.addImportToModule(source, modulePath, reducer)));
+                route_utils_1.insertImport(source, modulePath, 'StoreModule', '@ngrx/store'),
+                route_utils_1.insertImport(source, modulePath, 'EffectsModule', '@ngrx/effects')
+            ].concat(ast_utils_1.addImportToModule(source, modulePath, reducer), ast_utils_1.addImportToModule(source, modulePath, effects)));
             return host;
         }
         else {

@@ -5,6 +5,7 @@ var path = require("path");
 var lib_versions_1 = require("../utility/lib-versions");
 var fs = require("fs");
 var path_1 = require("path");
+var fileutils_1 = require("../utility/fileutils");
 function updatePackageJson() {
     return function (host) {
         if (!host.exists('package.json')) {
@@ -44,40 +45,42 @@ function updateAngularCLIJson() {
         return host;
     };
 }
-function updateTsConfigsJson() {
+function updateTsConfigsJson(options) {
     return function (host) {
-        var tsconfigJson = JSON.parse(fs.readFileSync('tsconfig.json', 'utf-8'));
-        if (!tsconfigJson.compilerOptions.paths) {
-            tsconfigJson.compilerOptions.paths = {};
-        }
-        tsconfigJson.compilerOptions.baseUrl = '.';
-        tsconfigJson.compilerOptions.paths['*'] = ['*', 'libs/*', 'apps/*'];
-        fs.writeFileSync('tsconfig.json', JSON.stringify(tsconfigJson, null, 2));
-        var tsconfingAppJson = JSON.parse(fs.readFileSync('tsconfig.app.json', 'utf-8'));
-        tsconfingAppJson['extends'] = './tsconfig.json';
-        if (!tsconfingAppJson.exclude) {
-            tsconfingAppJson.exclude = [];
-        }
-        tsconfingAppJson.exclude =
-            dedup(tsconfingAppJson.exclude.concat(['**/*.spec.ts', '**/*.e2e-spec.ts', 'node_modules', 'tmp']));
-        fs.writeFileSync('tsconfig.app.json', JSON.stringify(tsconfingAppJson, null, 2));
-        var tsconfingSpecJson = JSON.parse(fs.readFileSync('tsconfig.spec.json', 'utf-8'));
-        tsconfingSpecJson['extends'] = './tsconfig.json';
-        if (!tsconfingSpecJson.exclude) {
-            tsconfingSpecJson.exclude = [];
-        }
-        tsconfingSpecJson.files = ['test.js'];
-        tsconfingSpecJson.exclude = dedup(tsconfingSpecJson.exclude.concat(['node_modules', 'tmp']));
-        fs.writeFileSync('tsconfig.spec.json', JSON.stringify(tsconfingSpecJson, null, 2));
-        var tsconfingE2eJson = JSON.parse(fs.readFileSync('tsconfig.e2e.json', 'utf-8'));
-        tsconfingE2eJson['extends'] = './tsconfig.json';
-        if (!tsconfingE2eJson.exclude) {
-            tsconfingE2eJson.exclude = [];
-        }
-        tsconfingE2eJson.exclude = dedup(tsconfingE2eJson.exclude.concat(['**/*.spec.ts', 'node_modules', 'tmp']));
-        fs.writeFileSync('tsconfig.e2e.json', JSON.stringify(tsconfingE2eJson, null, 2));
+        var angularCliJson = JSON.parse(host.read('.angular-cli.json').toString('utf-8'));
+        var npmScope = options.npmScope ? options.npmScope : angularCliJson.project.name;
+        fileutils_1.updateJsonFile('tsconfig.json', function (json) { return setUpCompilerOptions(json, npmScope); });
+        fileutils_1.updateJsonFile('tsconfig.app.json', function (json) {
+            json['extends'] = './tsconfig.json';
+            if (!json.exclude)
+                json.exclude = [];
+            json.exclude = dedup(json.exclude.concat(['**/*.spec.ts', '**/*.e2e-spec.ts', 'node_modules', 'tmp']));
+            setUpCompilerOptions(json, npmScope);
+        });
+        fileutils_1.updateJsonFile('tsconfig.spec.json', function (json) {
+            json['extends'] = './tsconfig.json';
+            if (!json.exclude)
+                json.exclude = [];
+            json.files = ['test.js'];
+            json.exclude = dedup(json.exclude.concat(['node_modules', 'tmp']));
+            setUpCompilerOptions(json, npmScope);
+        });
+        fileutils_1.updateJsonFile('tsconfig.e2e.json', function (json) {
+            json['extends'] = './tsconfig.json';
+            if (!json.exclude)
+                json.exclude = [];
+            json.exclude = dedup(json.exclude.concat(['**/*.spec.ts', 'node_modules', 'tmp']));
+            setUpCompilerOptions(json, npmScope);
+        });
         return host;
     };
+}
+function setUpCompilerOptions(tsconfig, npmScope) {
+    if (!tsconfig.compilerOptions.paths) {
+        tsconfig.compilerOptions.paths = {};
+    }
+    tsconfig.compilerOptions.baseUrl = '.';
+    tsconfig.compilerOptions.paths["@" + npmScope + "/*"] = ['libs/*'];
 }
 function moveFiles() {
     return function (host) {
@@ -109,7 +112,7 @@ function default_1(options) {
         moveFiles(), schematics_1.branchAndMerge(schematics_1.chain([
             schematics_1.mergeWith(schematics_1.apply(schematics_1.url('./files'), [])),
         ])),
-        updatePackageJson(), updateAngularCLIJson(), updateTsConfigsJson()
+        updatePackageJson(), updateAngularCLIJson(), updateTsConfigsJson(options)
     ]);
 }
 exports.default = default_1;
