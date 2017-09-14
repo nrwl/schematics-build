@@ -14,14 +14,26 @@ var schematics_2 = require("@nrwl/schematics");
 var path = require("path");
 var ts = require("typescript");
 var ast_utils_1 = require("@schematics/angular/utility/ast-utils");
+var route_utils_1 = require("@schematics/angular/utility/route-utils");
 function addBootstrap(path) {
     return function (host) {
         var modulePath = path + "/app/app.module.ts";
         var moduleSource = host.read(modulePath).toString('utf-8');
         var sourceFile = ts.createSourceFile(modulePath, moduleSource, ts.ScriptTarget.Latest, true);
-        var importChanges = ast_utils_1.addImportToModule(sourceFile, modulePath, 'BrowserModule', '@angular/platform-browser');
-        var bootstrapChanges = ast_utils_1.addBootstrapToModule(sourceFile, modulePath, 'AppComponent', './app.component');
-        schematics_2.insert(host, modulePath, importChanges.concat(bootstrapChanges));
+        schematics_2.insert(host, modulePath, [
+            route_utils_1.insertImport(sourceFile, modulePath, 'BrowserModule', '@angular/platform-browser')
+        ].concat(schematics_2.addImportToModule(sourceFile, modulePath, 'BrowserModule'), ast_utils_1.addBootstrapToModule(sourceFile, modulePath, 'AppComponent', './app.component')));
+        return host;
+    };
+}
+function addNxModule(path) {
+    return function (host) {
+        var modulePath = path + "/app/app.module.ts";
+        var moduleSource = host.read(modulePath).toString('utf-8');
+        var sourceFile = ts.createSourceFile(modulePath, moduleSource, ts.ScriptTarget.Latest, true);
+        schematics_2.insert(host, modulePath, [
+            route_utils_1.insertImport(sourceFile, modulePath, 'NxModule', '@nrwl/nx')
+        ].concat(schematics_2.addImportToModule(sourceFile, modulePath, 'NxModule.forRoot()')));
         return host;
     };
 }
@@ -81,7 +93,7 @@ function default_1(options) {
             viewEncapsulation: options.viewEncapsulation,
             changeDetection: options.changeDetection
         }),
-        addBootstrap(fullPath), addAppToAngularCliJson(options)
+        addBootstrap(fullPath), addNxModule(fullPath), addAppToAngularCliJson(options)
     ]);
 }
 exports.default = default_1;
