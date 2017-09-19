@@ -1,6 +1,6 @@
 {
   "name": "@nrwl/schematics",
-  "version": "0.0.1+cbd0482",
+  "version": "0.0.1+dce85bd",
   "description": "Nrwl Extensions for Angular: Schematics",
   "main": "index.js",
   "types": "index.d.js",
