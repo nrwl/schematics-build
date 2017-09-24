@@ -88,7 +88,7 @@ function addNgRxToPackageJson() {
     };
 }
 function default_1(options) {
-    var name = path.basename(options.module, '.module.ts');
+    var name = options.name;
     var moduleDir = path.dirname(options.module);
     if (options.onlyEmptyRoot) {
         return schematics_1.chain([addImportsToModule(name, options), options.skipPackageJson ? schematics_1.noop() : addNgRxToPackageJson()]);

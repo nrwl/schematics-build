@@ -15,7 +15,7 @@ var ts = require("typescript");
 var ast_utils_1 = require("../utility/ast-utils");
 var route_utils_1 = require("@schematics/angular/utility/route-utils");
 var lib_versions_1 = require("../utility/lib-versions");
-function addImportsToModule(moduleClassName, angularJsModule, options) {
+function addImportsToModule(moduleClassName, options) {
     return function (host) {
         if (!host.exists(options.module)) {
             throw new Error('Specified module does not exist');
@@ -24,13 +24,13 @@ function addImportsToModule(moduleClassName, angularJsModule, options) {
         var sourceText = host.read(modulePath).toString('utf-8');
         var source = ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
         ast_utils_1.insert(host, modulePath, [
-            route_utils_1.insertImport(source, modulePath, "configure" + name_utils_1.toClassName(angularJsModule) + ", upgradedComponents", "./" + name_utils_1.toFileName(angularJsModule) + "-setup"),
+            route_utils_1.insertImport(source, modulePath, "configure" + name_utils_1.toClassName(options.name) + ", upgradedComponents", "./" + name_utils_1.toFileName(options.name) + "-setup"),
             route_utils_1.insertImport(source, modulePath, 'UpgradeModule', '@angular/upgrade/static')
         ].concat(ast_utils_1.addImportToModule(source, modulePath, 'UpgradeModule'), ast_utils_1.addDeclarationToModule(source, modulePath, '...upgradedComponents'), ast_utils_1.addEntryComponents(source, modulePath, ast_utils_1.getBootstrapComponent(source, moduleClassName))));
         return host;
     };
 }
-function addNgDoBootstrapToModule(moduleClassName, angularJsModule, options) {
+function addNgDoBootstrapToModule(moduleClassName, options) {
     return function (host) {
         var modulePath = options.module;
         var sourceText = host.read(modulePath).toString('utf-8');
@@ -38,12 +38,12 @@ function addNgDoBootstrapToModule(moduleClassName, angularJsModule, options) {
         ast_utils_1.insert(host, modulePath, ast_utils_1.addParameterToConstructor(source, modulePath, { className: moduleClassName, param: 'private upgrade: UpgradeModule' }).concat(ast_utils_1.addMethod(source, modulePath, {
             className: moduleClassName,
             methodHeader: 'ngDoBootstrap(): void',
-            body: "\nconfigure" + name_utils_1.toClassName(angularJsModule) + "(this.upgrade.injector);\nthis.upgrade.bootstrap(document.body, ['downgraded', '" + angularJsModule + "']);\n        "
+            body: "\nconfigure" + name_utils_1.toClassName(options.name) + "(this.upgrade.injector);\nthis.upgrade.bootstrap(document.body, ['downgraded', '" + options.name + "']);\n        "
         }), ast_utils_1.removeFromNgModule(source, modulePath, 'bootstrap')));
         return host;
     };
 }
-function createFiles(moduleClassName, moduleFileName, angularJsModule, options) {
+function createFiles(angularJsImport, moduleClassName, moduleFileName, options) {
     return function (host, context) {
         var modulePath = options.module;
         var moduleSourceText = host.read(modulePath).toString('utf-8');
@@ -54,9 +54,8 @@ function createFiles(moduleClassName, moduleFileName, angularJsModule, options) 
         var templateSource = schematics_1.apply(schematics_1.url('./files'), [
             schematics_1.template(__assign({}, options, { tmpl: '', moduleFileName: moduleFileName,
                 moduleClassName: moduleClassName,
-                angularJsModule: angularJsModule,
-                bootstrapComponentClassName: bootstrapComponentClassName,
-                bootstrapComponentFileName: bootstrapComponentFileName }, name_utils_1.names(angularJsModule))),
+                angularJsImport: angularJsImport, angularJsModule: options.name, bootstrapComponentClassName: bootstrapComponentClassName,
+                bootstrapComponentFileName: bootstrapComponentFileName }, name_utils_1.names(options.name))),
             schematics_1.move(moduleDir)
         ]);
         var r = schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)]));
@@ -85,11 +84,10 @@ function addUpgradeToPackageJson() {
 function default_1(options) {
     var moduleFileName = path.basename(options.module, '.ts');
     var moduleClassName = "" + name_utils_1.toClassName(moduleFileName);
-    var angularJsModule = options.angularJsModule ? options.angularJsModule : path.basename(options.angularJsImport);
+    var angularJsImport = options.angularJsImport ? options.angularJsImport : options.name;
     return schematics_1.chain([
-        createFiles(moduleClassName, moduleFileName, angularJsModule, options),
-        addImportsToModule(moduleClassName, angularJsModule, options),
-        addNgDoBootstrapToModule(moduleClassName, angularJsModule, options),
+        createFiles(angularJsImport, moduleClassName, moduleFileName, options),
+        addImportsToModule(moduleClassName, options), addNgDoBootstrapToModule(moduleClassName, options),
         options.skipPackageJson ? schematics_1.noop() : addUpgradeToPackageJson()
     ]);
 }
