@@ -18,8 +18,24 @@ function updatePackageJson() {
         if (!packageJson.dependencies) {
             packageJson.dependencies = {};
         }
-        packageJson.dependencies['@nrwl/nx'] = lib_versions_1.nxVersion;
-        packageJson.devDependencies['@nrwl/schematics'] = lib_versions_1.schematicsVersion;
+        if (!packageJson.dependencies['@nrwl/nx']) {
+            packageJson.dependencies['@nrwl/nx'] = lib_versions_1.nxVersion;
+        }
+        if (!packageJson.dependencies['@ngrx/store']) {
+            packageJson.dependencies['@ngrx/store'] = lib_versions_1.ngrxVersion;
+        }
+        if (!packageJson.dependencies['@ngrx/router-store']) {
+            packageJson.dependencies['@ngrx/router-store'] = lib_versions_1.ngrxVersion;
+        }
+        if (!packageJson.dependencies['@ngrx/effects']) {
+            packageJson.dependencies['@ngrx/effects'] = lib_versions_1.ngrxVersion;
+        }
+        if (!packageJson.dependencies['@ngrx/store-devtools']) {
+            packageJson.dependencies['@ngrx/store-devtools'] = lib_versions_1.ngrxVersion;
+        }
+        if (!packageJson.devDependencies['@nrwl/schematics']) {
+            packageJson.devDependencies['@nrwl/schematics'] = lib_versions_1.schematicsVersion;
+        }
         host.overwrite('package.json', JSON.stringify(packageJson, null, 2));
         return host;
     };
