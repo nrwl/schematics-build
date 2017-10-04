@@ -16,7 +16,8 @@ function addLibToAngularCliJson(options) {
         var appConfig = {
             'name': options.name,
             'root': path.join('libs', options.name, options.sourceDir),
-            'test': '../../../test.js'
+            'test': '../../../test.js',
+            "appRoot": ""
         };
         if (!host.exists('.angular-cli.json')) {
             throw new Error('Missing .angular-cli.json');
