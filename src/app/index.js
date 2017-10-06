@@ -47,7 +47,7 @@ function addAppToAngularCliJson(options) {
         var json = JSON.parse(sourceText);
         json.apps = config_file_utils_1.addApp(json.apps, {
             'name': options.name,
-            'root': path.join('apps', options.name, options.sourceDir),
+            'root': fullPath(options),
             'outDir': "dist/apps/" + options.name,
             'assets': ['assets', 'favicon.ico'],
             'index': 'index.html',
@@ -66,22 +66,23 @@ function addAppToAngularCliJson(options) {
         return host;
     };
 }
-function default_1(options) {
-    var fullPath = path.join('apps', schematics_2.toFileName(options.name), options.sourceDir);
+function default_1(schema) {
+    var options = __assign({}, schema, { name: schematics_2.toFileName(schema.name) });
     var templateSource = schematics_1.apply(schematics_1.url('./files'), [schematics_1.template(__assign({ utils: stringUtils, dot: '.', tmpl: '' }, options))]);
+    var selector = options.prefix + "-root";
     return schematics_1.chain([
         schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])), schematics_1.externalSchematic('@schematics/angular', 'module', {
             name: 'app',
             commonModule: false,
             flat: true,
             routing: options.routing,
-            sourceDir: fullPath,
+            sourceDir: fullPath(options),
             spec: false,
         }),
         schematics_1.externalSchematic('@schematics/angular', 'component', {
             name: 'app',
-            selector: options.prefix + "-root",
-            sourceDir: fullPath,
+            selector: selector,
+            sourceDir: fullPath(options),
             flat: true,
             inlineStyle: options.inlineStyle,
             inlineTemplate: options.inlineTemplate,
@@ -90,7 +91,15 @@ function default_1(options) {
             viewEncapsulation: options.viewEncapsulation,
             changeDetection: options.changeDetection
         }),
-        addBootstrap(fullPath), addNxModule(fullPath), addAppToAngularCliJson(options)
+        schematics_1.mergeWith(schematics_1.apply(schematics_1.url('./component-files'), [
+            options.inlineTemplate ? schematics_1.filter(function (path) { return !path.endsWith('.html'); }) : schematics_1.noop(),
+            schematics_1.template(__assign({}, options, { tmpl: '' })),
+            schematics_1.move(path.join(fullPath(options), 'app')),
+        ]), schematics_1.MergeStrategy.Overwrite),
+        addBootstrap(fullPath(options)), addNxModule(fullPath(options)), addAppToAngularCliJson(options)
     ]);
 }
 exports.default = default_1;
+function fullPath(options) {
+    return path.join('apps', options.name, options.sourceDir);
+}

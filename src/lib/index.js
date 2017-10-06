@@ -19,19 +19,19 @@ function addLibToAngularCliJson(options) {
         }
         var sourceText = host.read('.angular-cli.json').toString('utf-8');
         var json = JSON.parse(sourceText);
-        json.apps = config_file_utils_1.addApp(json.apps, {
-            'name': options.name,
-            'root': path.join('libs', options.name, options.sourceDir),
-            'test': '../../../test.js',
-            'appRoot': ''
-        });
+        json.apps =
+            config_file_utils_1.addApp(json.apps, { 'name': options.name, 'root': fullPath(options), 'test': '../../../test.js', 'appRoot': '' });
         host.overwrite('.angular-cli.json', JSON.stringify(json, null, 2));
         return host;
     };
 }
-function default_1(options) {
+function default_1(schema) {
+    var options = __assign({}, schema, { name: schematics_2.toFileName(schema.name) });
     var fullPath = path.join('libs', schematics_2.toFileName(options.name), options.sourceDir);
     var templateSource = schematics_1.apply(schematics_1.url(options.ngmodule ? './ngfiles' : './files'), [schematics_1.template(__assign({}, schematics_2.names(options.name), { dot: '.', tmpl: '' }, options))]);
     return schematics_1.chain([schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])), addLibToAngularCliJson(options)]);
 }
 exports.default = default_1;
+function fullPath(options) {
+    return path.join('libs', options.name, options.sourceDir);
+}

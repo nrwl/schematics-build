@@ -1,4 +1,12 @@
 "use strict";
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var schematics_1 = require("@angular-devkit/schematics");
 var path = require("path");
@@ -6,6 +14,7 @@ var lib_versions_1 = require("../utility/lib-versions");
 var fs = require("fs");
 var path_1 = require("path");
 var fileutils_1 = require("../utility/fileutils");
+var schematics_2 = require("@nrwl/schematics");
 function updatePackageJson() {
     return function (host) {
         if (!host.exists('package.json')) {
@@ -17,6 +26,9 @@ function updatePackageJson() {
         }
         if (!packageJson.dependencies) {
             packageJson.dependencies = {};
+        }
+        if (packageJson.scripts) {
+            packageJson.scripts = {};
         }
         if (!packageJson.dependencies['@nrwl/nx']) {
             packageJson.dependencies['@nrwl/nx'] = lib_versions_1.nxVersion;
@@ -39,6 +51,8 @@ function updatePackageJson() {
         if (!packageJson.dependencies['@angular/cli']) {
             packageJson.dependencies['@angular/cli'] = lib_versions_1.angularCliVersion;
         }
+        packageJson.scripts['format'] =
+            "find apps/ -iname '*.ts' | xargs clang-format -i && find libs/ -iname '*.ts' | xargs clang-format -i";
         host.overwrite('package.json', JSON.stringify(packageJson, null, 2));
         return host;
     };
@@ -68,6 +82,7 @@ function updateAngularCLIJson(options) {
             angularCliJson.defaults.schematics = {};
         }
         angularCliJson.defaults.schematics['collection'] = '@nrwl/schematics';
+        angularCliJson.defaults.schematics['postGenerate'] = 'npm run format';
         angularCliJson.defaults.schematics['newProject'] = ['app', 'lib'];
         host.overwrite('.angular-cli.json', JSON.stringify(angularCliJson, null, 2));
         return host;
@@ -158,7 +173,8 @@ function dedup(array) {
     });
     return res;
 }
-function default_1(options) {
+function default_1(schema) {
+    var options = __assign({}, schema, { name: schematics_2.toFileName(schema.name) });
     return schematics_1.chain([
         moveFiles(options), schematics_1.branchAndMerge(schematics_1.chain([
             schematics_1.mergeWith(schematics_1.apply(schematics_1.url('./files'), [])),

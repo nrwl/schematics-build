@@ -32,6 +32,9 @@ function addImportsToModule(moduleClassName, options) {
 }
 function addNgDoBootstrapToModule(moduleClassName, options) {
     return function (host) {
+        if (!host.exists(options.module)) {
+            throw new Error('Specified module does not exist');
+        }
         var modulePath = options.module;
         var sourceText = host.read(modulePath).toString('utf-8');
         var source = ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
@@ -45,6 +48,9 @@ function addNgDoBootstrapToModule(moduleClassName, options) {
 }
 function createFiles(angularJsImport, moduleClassName, moduleFileName, options) {
     return function (host, context) {
+        if (!host.exists(options.module)) {
+            throw new Error('Specified module does not exist');
+        }
         var modulePath = options.module;
         var moduleSourceText = host.read(modulePath).toString('utf-8');
         var moduleSource = ts.createSourceFile(modulePath, moduleSourceText, ts.ScriptTarget.Latest, true);
