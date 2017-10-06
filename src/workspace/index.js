@@ -36,6 +36,9 @@ function updatePackageJson() {
         if (!packageJson.devDependencies['@nrwl/schematics']) {
             packageJson.devDependencies['@nrwl/schematics'] = lib_versions_1.schematicsVersion;
         }
+        if (!packageJson.dependencies['@angular/cli']) {
+            packageJson.dependencies['@angular/cli'] = lib_versions_1.angularCliVersion;
+        }
         host.overwrite('package.json', JSON.stringify(packageJson, null, 2));
         return host;
     };
@@ -72,7 +75,6 @@ function updateAngularCLIJson(options) {
 }
 function updateTsConfigsJson(options) {
     return function (host) {
-        var angularCliJson = JSON.parse(host.read('.angular-cli.json').toString('utf-8'));
         var npmScope = options && options.npmScope ? options.npmScope : options.name;
         fileutils_1.updateJsonFile('tsconfig.json', function (json) { return setUpCompilerOptions(json, npmScope); });
         fileutils_1.updateJsonFile('tsconfig.app.json', function (json) {
@@ -96,6 +98,18 @@ function updateTsConfigsJson(options) {
                 json.exclude = [];
             json.exclude = dedup(json.exclude.concat(['**/*.spec.ts', 'node_modules', 'tmp']));
             setUpCompilerOptions(json, npmScope);
+        });
+        return host;
+    };
+}
+function updateTsLintJson(options) {
+    return function (host) {
+        var npmScope = options && options.npmScope ? options.npmScope : options.name;
+        fileutils_1.updateJsonFile('tslint.json', function (json) {
+            ['no-trailing-whitespace', 'one-line', 'quotemark', 'typedef-whitespace', 'whitespace'].forEach(function (key) {
+                json[key] = undefined;
+            });
+            json['nx-enforce-module-boundaries'] = [true, { 'npmScope': npmScope, 'lazyLoad': [] }];
         });
         return host;
     };
@@ -149,7 +163,8 @@ function default_1(options) {
         moveFiles(options), schematics_1.branchAndMerge(schematics_1.chain([
             schematics_1.mergeWith(schematics_1.apply(schematics_1.url('./files'), [])),
         ])),
-        updatePackageJson(), updateAngularCLIJson(options), updateTsConfigsJson(options), updateProtractorConf()
+        updatePackageJson(), updateAngularCLIJson(options), updateTsConfigsJson(options), updateProtractorConf(),
+        updateTsLintJson(options)
     ]);
 }
 exports.default = default_1;

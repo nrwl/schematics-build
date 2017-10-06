@@ -13,7 +13,7 @@ var stringUtils = require("@schematics/angular/strings");
 var lib_versions_1 = require("../utility/lib-versions");
 function default_1(options) {
     var npmScope = options.npmScope ? options.npmScope : options.name;
-    var templateSource = schematics_1.apply(schematics_1.url('./files'), [schematics_1.template(__assign({ utils: stringUtils, dot: '.', nxVersion: lib_versions_1.nxVersion, ngrxVersion: lib_versions_1.ngrxVersion, schematicsVersion: lib_versions_1.schematicsVersion }, options, { npmScope: npmScope }))]);
+    var templateSource = schematics_1.apply(schematics_1.url('./files'), [schematics_1.template(__assign({ utils: stringUtils, dot: '.' }, lib_versions_1.libVersions, options, { npmScope: npmScope }))]);
     return schematics_1.chain([schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)]))]);
 }
 exports.default = default_1;

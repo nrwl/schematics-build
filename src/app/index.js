@@ -15,6 +15,7 @@ var path = require("path");
 var ts = require("typescript");
 var ast_utils_1 = require("@schematics/angular/utility/ast-utils");
 var route_utils_1 = require("@schematics/angular/utility/route-utils");
+var config_file_utils_1 = require("../utility/config-file-utils");
 function addBootstrap(path) {
     return function (host) {
         var modulePath = path + "/app/app.module.ts";
@@ -39,7 +40,12 @@ function addNxModule(path) {
 }
 function addAppToAngularCliJson(options) {
     return function (host) {
-        var appConfig = {
+        if (!host.exists('.angular-cli.json')) {
+            throw new Error('Missing .angular-cli.json');
+        }
+        var sourceText = host.read('.angular-cli.json').toString('utf-8');
+        var json = JSON.parse(sourceText);
+        json.apps = config_file_utils_1.addApp(json.apps, {
             'name': options.name,
             'root': path.join('apps', options.name, options.sourceDir),
             'outDir': "dist/apps/" + options.name,
@@ -55,16 +61,7 @@ function addAppToAngularCliJson(options) {
             'scripts': [],
             'environmentSource': 'environments/environment.ts',
             'environments': { 'dev': 'environments/environment.ts', 'prod': 'environments/environment.prod.ts' }
-        };
-        if (!host.exists('.angular-cli.json')) {
-            throw new Error('Missing .angular-cli.json');
-        }
-        var sourceText = host.read('.angular-cli.json').toString('utf-8');
-        var json = JSON.parse(sourceText);
-        if (!json['apps']) {
-            json['apps'] = [];
-        }
-        json['apps'].push(appConfig);
+        });
         host.overwrite('.angular-cli.json', JSON.stringify(json, null, 2));
         return host;
     };
