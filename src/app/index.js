@@ -46,21 +46,24 @@ function addAppToAngularCliJson(options) {
         var sourceText = host.read('.angular-cli.json').toString('utf-8');
         var json = JSON.parse(sourceText);
         json.apps = config_file_utils_1.addApp(json.apps, {
-            'name': options.name,
-            'root': fullPath(options),
-            'outDir': "dist/apps/" + options.name,
-            'assets': ['assets', 'favicon.ico'],
-            'index': 'index.html',
-            'main': 'main.ts',
-            'polyfills': 'polyfills.ts',
-            'test': '../../../test.js',
-            'tsconfig': '../../../tsconfig.app.json',
-            'testTsconfig': '../../../tsconfig.spec.json',
-            'prefix': options.prefix,
-            'styles': ["styles." + options.style],
-            'scripts': [],
-            'environmentSource': 'environments/environment.ts',
-            'environments': { 'dev': 'environments/environment.ts', 'prod': 'environments/environment.prod.ts' }
+            name: options.name,
+            root: fullPath(options),
+            outDir: "dist/apps/" + options.name,
+            assets: ['assets', 'favicon.ico'],
+            index: 'index.html',
+            main: 'main.ts',
+            polyfills: 'polyfills.ts',
+            test: '../../../test.js',
+            tsconfig: '../../../tsconfig.app.json',
+            testTsconfig: '../../../tsconfig.spec.json',
+            prefix: options.prefix,
+            styles: ["styles." + options.style],
+            scripts: [],
+            environmentSource: 'environments/environment.ts',
+            environments: {
+                dev: 'environments/environment.ts',
+                prod: 'environments/environment.prod.ts'
+            }
         });
         host.overwrite('.angular-cli.json', JSON.stringify(json, null, 2));
         return host;
@@ -68,16 +71,19 @@ function addAppToAngularCliJson(options) {
 }
 function default_1(schema) {
     var options = __assign({}, schema, { name: schematics_2.toFileName(schema.name) });
-    var templateSource = schematics_1.apply(schematics_1.url('./files'), [schematics_1.template(__assign({ utils: stringUtils, dot: '.', tmpl: '' }, options))]);
+    var templateSource = schematics_1.apply(schematics_1.url('./files'), [
+        schematics_1.template(__assign({ utils: stringUtils, dot: '.', tmpl: '' }, options))
+    ]);
     var selector = options.prefix + "-root";
     return schematics_1.chain([
-        schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])), schematics_1.externalSchematic('@schematics/angular', 'module', {
+        schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])),
+        schematics_1.externalSchematic('@schematics/angular', 'module', {
             name: 'app',
             commonModule: false,
             flat: true,
             routing: options.routing,
             sourceDir: fullPath(options),
-            spec: false,
+            spec: false
         }),
         schematics_1.externalSchematic('@schematics/angular', 'component', {
             name: 'app',
@@ -94,9 +100,11 @@ function default_1(schema) {
         schematics_1.mergeWith(schematics_1.apply(schematics_1.url('./component-files'), [
             options.inlineTemplate ? schematics_1.filter(function (path) { return !path.endsWith('.html'); }) : schematics_1.noop(),
             schematics_1.template(__assign({}, options, { tmpl: '' })),
-            schematics_1.move(path.join(fullPath(options), 'app')),
+            schematics_1.move(path.join(fullPath(options), 'app'))
         ]), schematics_1.MergeStrategy.Overwrite),
-        addBootstrap(fullPath(options)), addNxModule(fullPath(options)), addAppToAngularCliJson(options)
+        addBootstrap(fullPath(options)),
+        addNxModule(fullPath(options)),
+        addAppToAngularCliJson(options)
     ]);
 }
 exports.default = default_1;

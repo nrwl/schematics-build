@@ -10,12 +10,17 @@ describe('configFileUtils', function () {
             expect(config_file_utils_1.addApp([], { name: 'a' })).toEqual([{ name: 'a' }]);
         });
         it('should sort apps by name', function () {
-            expect(config_file_utils_1.addApp([{ name: 'a' }, { name: 'b' }], { name: 'c' })).toEqual([{ name: 'a' }, { name: 'b' }, { name: 'c' }]);
+            expect(config_file_utils_1.addApp([{ name: 'a' }, { name: 'b' }], { name: 'c' })).toEqual([
+                { name: 'a' },
+                { name: 'b' },
+                { name: 'c' }
+            ]);
         });
         it('should prioritize apps with "main" defined', function () {
-            expect(config_file_utils_1.addApp([{ name: 'c' }, { name: 'a' }, { name: 'a', main: 'a' }], { name: 'b', main: 'b' })).toEqual([
-                { name: 'a', main: 'a' }, { name: 'b', main: 'b' }, { name: 'a' }, { name: 'c' }
-            ]);
+            expect(config_file_utils_1.addApp([{ name: 'c' }, { name: 'a' }, { name: 'a', main: 'a' }], {
+                name: 'b',
+                main: 'b'
+            })).toEqual([{ name: 'a', main: 'a' }, { name: 'b', main: 'b' }, { name: 'a' }, { name: 'c' }]);
         });
     });
 });

@@ -96,7 +96,8 @@ function default_1(options) {
     else {
         var templateSource = schematics_1.apply(schematics_1.url('./files'), [schematics_1.template(__assign({}, options, { tmpl: '' }, name_utils_1.names(name))), schematics_1.move(moduleDir)]);
         return schematics_1.chain([
-            schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])), addImportsToModule(name, options),
+            schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(templateSource)])),
+            addImportsToModule(name, options),
             options.skipPackageJson ? schematics_1.noop() : addNgRxToPackageJson()
         ]);
     }

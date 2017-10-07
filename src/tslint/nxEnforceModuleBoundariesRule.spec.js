@@ -24,7 +24,11 @@ describe('Enforce Module Boundaries', function () {
     });
 });
 function runRule(ruleArguments, content) {
-    var options = { ruleArguments: [ruleArguments], ruleSeverity: 'error', ruleName: 'enforceModuleBoundaries' };
+    var options = {
+        ruleArguments: [ruleArguments],
+        ruleSeverity: 'error',
+        ruleName: 'enforceModuleBoundaries'
+    };
     var sourceFile = ts.createSourceFile('proj/apps/myapp/src/main.ts', content, ts.ScriptTarget.Latest, true);
     var rule = new nxEnforceModuleBoundariesRule_1.Rule(options, 'proj');
     return rule.apply(sourceFile);

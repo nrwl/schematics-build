@@ -6,11 +6,13 @@ exports.angularJsVersion = '1.6.6';
 exports.ngrxVersion = '^4.0.0';
 exports.nxVersion = 'nrwl/nx-build';
 exports.schematicsVersion = 'nrwl/schematics-build';
+exports.prettierVersion = '1.7.4';
 exports.libVersions = {
     angularVersion: exports.angularVersion,
     angularCliVersion: exports.angularCliVersion,
     angularJsVersion: exports.angularJsVersion,
     ngrxVersion: exports.ngrxVersion,
     nxVersion: exports.nxVersion,
-    schematicsVersion: exports.schematicsVersion
+    schematicsVersion: exports.schematicsVersion,
+    prettierVersion: exports.prettierVersion
 };

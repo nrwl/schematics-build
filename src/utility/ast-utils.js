@@ -12,8 +12,7 @@ function _addSymbolToNgModuleMetadata(source, ngModulePath, metadataField, expre
         return [];
     }
     // Get all the children property assignment of object literals.
-    var matchingProperties = node
-        .properties
+    var matchingProperties = node.properties
         .filter(function (prop) { return prop.kind == ts.SyntaxKind.PropertyAssignment; })
         .filter(function (prop) {
         var name = prop.name;
@@ -127,14 +126,19 @@ function addParameterToConstructor(source, modulePath, opts) {
     }
     else {
         var methodHeader = "constructor(" + opts.param + ")";
-        return addMethod(source, modulePath, { className: opts.className, methodHeader: methodHeader, body: null });
+        return addMethod(source, modulePath, {
+            className: opts.className,
+            methodHeader: methodHeader,
+            body: null
+        });
     }
 }
 exports.addParameterToConstructor = addParameterToConstructor;
 function addMethod(source, modulePath, opts) {
     var clazz = findClass(source, opts.className);
-    var body = opts.body ? "\n" + opts.methodHeader + " {\n" + offset(opts.body, 1, false) + "\n}\n" :
-        "\n" + opts.methodHeader + " {}\n";
+    var body = opts.body
+        ? "\n" + opts.methodHeader + " {\n" + offset(opts.body, 1, false) + "\n}\n"
+        : "\n" + opts.methodHeader + " {}\n";
     var pos = clazz.members.length > 0 ? clazz.members.end : clazz.end - 1;
     return [new change_1.InsertChange(modulePath, clazz.end - 1, offset(body, 1, true))];
 }
@@ -165,7 +169,8 @@ function findClass(source, className) {
     return clazz;
 }
 function offset(text, numberOfTabs, wrap) {
-    var lines = text.trim()
+    var lines = text
+        .trim()
         .split('\n')
         .map(function (line) {
         var tabs = '';
@@ -202,8 +207,7 @@ function getMatchingProperty(source, property) {
     if (!node)
         return null;
     // Get all the children property assignment of object literals.
-    return node
-        .properties
+    return (node.properties
         .filter(function (prop) { return prop.kind == ts.SyntaxKind.PropertyAssignment; })
         .filter(function (prop) {
         var name = prop.name;
@@ -214,7 +218,7 @@ function getMatchingProperty(source, property) {
                 return name.text === property;
         }
         return false;
-    })[0];
+    })[0]);
 }
 function addProviderToModule(source, modulePath, symbolName) {
     return _addSymbolToNgModuleMetadata(source, modulePath, 'providers', symbolName);

@@ -38,7 +38,10 @@ function addNgDoBootstrapToModule(moduleClassName, options) {
         var modulePath = options.module;
         var sourceText = host.read(modulePath).toString('utf-8');
         var source = ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
-        ast_utils_1.insert(host, modulePath, ast_utils_1.addParameterToConstructor(source, modulePath, { className: moduleClassName, param: 'private upgrade: UpgradeModule' }).concat(ast_utils_1.addMethod(source, modulePath, {
+        ast_utils_1.insert(host, modulePath, ast_utils_1.addParameterToConstructor(source, modulePath, {
+            className: moduleClassName,
+            param: 'private upgrade: UpgradeModule'
+        }).concat(ast_utils_1.addMethod(source, modulePath, {
             className: moduleClassName,
             methodHeader: 'ngDoBootstrap(): void',
             body: "\nconfigure" + name_utils_1.toClassName(options.name) + "(this.upgrade.injector);\nthis.upgrade.bootstrap(document.body, ['downgraded', '" + options.name + "']);\n        "
@@ -93,7 +96,8 @@ function default_1(options) {
     var angularJsImport = options.angularJsImport ? options.angularJsImport : options.name;
     return schematics_1.chain([
         createFiles(angularJsImport, moduleClassName, moduleFileName, options),
-        addImportsToModule(moduleClassName, options), addNgDoBootstrapToModule(moduleClassName, options),
+        addImportsToModule(moduleClassName, options),
+        addNgDoBootstrapToModule(moduleClassName, options),
         options.skipPackageJson ? schematics_1.noop() : addUpgradeToPackageJson()
     ]);
 }

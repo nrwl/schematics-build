@@ -51,8 +51,10 @@ function updatePackageJson() {
         if (!packageJson.dependencies['@angular/cli']) {
             packageJson.dependencies['@angular/cli'] = lib_versions_1.angularCliVersion;
         }
-        packageJson.scripts['format'] =
-            "find apps/ -iname '*.ts' | xargs clang-format -i && find libs/ -iname '*.ts' | xargs clang-format -i";
+        if (!packageJson.devDependencies['prettier']) {
+            packageJson.devDependencies['prettier'] = lib_versions_1.prettierVersion;
+        }
+        packageJson.scripts['format'] = "prettier --single-quote --print-width 120 --write '{apps,libs}/**/*.ts'";
         host.overwrite('package.json', JSON.stringify(packageJson, null, 2));
         return host;
     };
@@ -66,8 +68,11 @@ function updateAngularCLIJson(options) {
         if (angularCliJson.apps.length !== 1) {
             throw new Error('Can only convert projects with one app');
         }
-        angularCliJson.lint =
-            [{ 'project': './tsconfig.app.json' }, { 'project': './tsconfig.spec.json' }, { 'project': './tsconfig.e2e.json' }];
+        angularCliJson.lint = [
+            { project: './tsconfig.app.json' },
+            { project: './tsconfig.spec.json' },
+            { project: './tsconfig.e2e.json' }
+        ];
         var app = angularCliJson.apps[0];
         app.root = path.join('apps', options.name, app.root);
         app.outDir = path.join('dist', 'apps', options.name);
@@ -124,7 +129,7 @@ function updateTsLintJson(options) {
             ['no-trailing-whitespace', 'one-line', 'quotemark', 'typedef-whitespace', 'whitespace'].forEach(function (key) {
                 json[key] = undefined;
             });
-            json['nx-enforce-module-boundaries'] = [true, { 'npmScope': npmScope, 'lazyLoad': [] }];
+            json['nx-enforce-module-boundaries'] = [true, { npmScope: npmScope, lazyLoad: [] }];
         });
         return host;
     };
@@ -135,7 +140,8 @@ function updateProtractorConf() {
             throw new Error('Cannot find protractor.conf.js');
         }
         var protractorConf = host.read('protractor.conf.js').toString('utf-8');
-        var updatedConf = protractorConf.replace("./e2e/**/*.e2e-spec.ts", "./apps/**/*.e2e-spec.ts")
+        var updatedConf = protractorConf
+            .replace("./e2e/**/*.e2e-spec.ts", "./apps/**/*.e2e-spec.ts")
             .replace("e2e/tsconfig.e2e.json", "./tsconfig.e2e.json");
         host.overwrite('protractor.conf.js', updatedConf);
         return host;
@@ -176,10 +182,12 @@ function dedup(array) {
 function default_1(schema) {
     var options = __assign({}, schema, { name: schematics_2.toFileName(schema.name) });
     return schematics_1.chain([
-        moveFiles(options), schematics_1.branchAndMerge(schematics_1.chain([
-            schematics_1.mergeWith(schematics_1.apply(schematics_1.url('./files'), [])),
-        ])),
-        updatePackageJson(), updateAngularCLIJson(options), updateTsConfigsJson(options), updateProtractorConf(),
+        moveFiles(options),
+        schematics_1.branchAndMerge(schematics_1.chain([schematics_1.mergeWith(schematics_1.apply(schematics_1.url('./files'), []))])),
+        updatePackageJson(),
+        updateAngularCLIJson(options),
+        updateTsConfigsJson(options),
+        updateProtractorConf(),
         updateTsLintJson(options)
     ]);
 }
