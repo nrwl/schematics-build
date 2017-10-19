@@ -296,8 +296,8 @@ function readBootstrapInfo(host, app) {
     if (!host.exists(mainPath)) {
         throw new Error('Main file cannot be located');
     }
-    var mainSource = host.read('apps/myapp/src/main.ts').toString('utf-8');
-    var main = ts.createSourceFile('apps/myapp/src/main.ts', mainSource, ts.ScriptTarget.Latest, true);
+    var mainSource = host.read(mainPath).toString('utf-8');
+    var main = ts.createSourceFile(mainPath, mainSource, ts.ScriptTarget.Latest, true);
     var moduleImports = getImport(main, function (s) { return s.indexOf('.module') > -1; });
     if (moduleImports.length !== 1) {
         throw new Error("main.ts can only import a single module");
