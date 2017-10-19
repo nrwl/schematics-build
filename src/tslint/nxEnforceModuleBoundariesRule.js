@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var path = require("path");
 var Lint = require("tslint");
-var Rule = (function (_super) {
+var Rule = /** @class */ (function (_super) {
     __extends(Rule, _super);
     function Rule(options, path) {
         var _this = _super.call(this, options) || this;
@@ -28,7 +28,7 @@ var Rule = (function (_super) {
     return Rule;
 }(Lint.Rules.AbstractRule));
 exports.Rule = Rule;
-var EnforceModuleBoundariesWalker = (function (_super) {
+var EnforceModuleBoundariesWalker = /** @class */ (function (_super) {
     __extends(EnforceModuleBoundariesWalker, _super);
     function EnforceModuleBoundariesWalker(sourceFile, options, projectPath) {
         var _this = _super.call(this, sourceFile, options) || this;

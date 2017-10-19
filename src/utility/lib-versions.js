@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.angularCliVersion = 'nrwl/fix-cli-build';
-exports.angularVersion = '^4.4.4';
+exports.angularVersion = '5.0.0-rc.2';
 exports.angularJsVersion = '1.6.6';
 exports.ngrxVersion = '^4.0.0';
 exports.nxVersion = '^0.0.6';

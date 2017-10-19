@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ast_utils_1 = require("@schematics/angular/utility/ast-utils");
 var change_1 = require("@schematics/angular/utility/change");
 var ts = require("typescript");
+var name_utils_1 = require("./name-utils");
+var path = require("path");
 // This should be moved to @schematics/angular once it allows to pass custom expressions as providers
 function _addSymbolToNgModuleMetadata(source, ngModulePath, metadataField, expression) {
     var nodes = ast_utils_1.getDecoratorMetadata(source, 'NgModule', '@angular/core');
@@ -220,6 +222,21 @@ function getMatchingProperty(source, property) {
         return false;
     })[0]);
 }
+function getImport(source, predicate) {
+    var allImports = ast_utils_1.findNodes(source, ts.SyntaxKind.ImportDeclaration);
+    var matching = allImports.filter(function (i) { return predicate(i.moduleSpecifier.getText()); });
+    return matching.map(function (i) {
+        var moduleSpec = i.moduleSpecifier.getText().substring(1, i.moduleSpecifier.getText().length - 1);
+        var t = i.importClause.namedBindings.getText();
+        var bindings = t
+            .replace('{', '')
+            .replace('}', '')
+            .split(',')
+            .map(function (q) { return q.trim(); });
+        return { moduleSpec: moduleSpec, bindings: bindings };
+    });
+}
+exports.getImport = getImport;
 function addProviderToModule(source, modulePath, symbolName) {
     return _addSymbolToNgModuleMetadata(source, modulePath, 'providers', symbolName);
 }
@@ -252,3 +269,57 @@ function insert(host, modulePath, changes) {
     host.commitUpdate(recorder);
 }
 exports.insert = insert;
+function getAppConfig(host, name) {
+    if (!host.exists('.angular-cli.json')) {
+        throw new Error('Missing .angular-cli.json');
+    }
+    var angularCliJson = JSON.parse(host.read('.angular-cli.json').toString('utf-8'));
+    var apps = angularCliJson.apps;
+    if (!apps || apps.length === 0) {
+        throw new Error("Cannot find app '" + name + "'");
+    }
+    if (name) {
+        var appConfig = apps.filter(function (a) { return a.name === name; })[0];
+        if (!appConfig) {
+            throw new Error("Cannot find app '" + name + "'");
+        }
+        else {
+            return appConfig;
+        }
+    }
+    return apps[0];
+}
+exports.getAppConfig = getAppConfig;
+function readBootstrapInfo(host, app) {
+    var config = getAppConfig(host, app);
+    var mainPath = path.join(config.root, config.main);
+    if (!host.exists(mainPath)) {
+        throw new Error('Main file cannot be located');
+    }
+    var mainSource = host.read('apps/myapp/src/main.ts').toString('utf-8');
+    var main = ts.createSourceFile('apps/myapp/src/main.ts', mainSource, ts.ScriptTarget.Latest, true);
+    var moduleImports = getImport(main, function (s) { return s.indexOf('.module') > -1; });
+    if (moduleImports.length !== 1) {
+        throw new Error("main.ts can only import a single module");
+    }
+    var moduleImport = moduleImports[0];
+    var moduleClassName = moduleImport.bindings.filter(function (b) { return b.endsWith('Module'); })[0];
+    var modulePath = path.join(path.dirname(mainPath), moduleImport.moduleSpec) + ".ts";
+    if (!host.exists(modulePath)) {
+        throw new Error("Cannot find '" + modulePath + "'");
+    }
+    var moduleSourceText = host.read(modulePath).toString('utf-8');
+    var moduleSource = ts.createSourceFile(modulePath, moduleSourceText, ts.ScriptTarget.Latest, true);
+    var bootstrapComponentClassName = getBootstrapComponent(moduleSource, moduleClassName);
+    var bootstrapComponentFileName = "./" + path.join(path.dirname(moduleImport.moduleSpec), name_utils_1.toFileName(bootstrapComponentClassName.substring(0, bootstrapComponentClassName.length - 9)) + ".component");
+    return {
+        moduleSpec: moduleImport.moduleSpec,
+        mainPath: mainPath,
+        modulePath: modulePath,
+        moduleSource: moduleSource,
+        moduleClassName: moduleClassName,
+        bootstrapComponentClassName: bootstrapComponentClassName,
+        bootstrapComponentFileName: bootstrapComponentFileName
+    };
+}
+exports.readBootstrapInfo = readBootstrapInfo;
