@@ -53,7 +53,7 @@ function addImportsToModule(name, options) {
                 ast_utils_1.insert(host, modulePath, common.concat([
                     route_utils_1.insertImport(source, modulePath, 'StoreDevtoolsModule', '@ngrx/store-devtools'),
                     route_utils_1.insertImport(source, modulePath, 'environment', '../environments/environment')
-                ], ast_utils_1.addImportToModule(source, modulePath, "StoreModule.forRoot(" + reducerName + ", {initialState: " + initName + "})"), ast_utils_1.addImportToModule(source, modulePath, "EffectsModule.forRoot([" + effectsName + "])"), ast_utils_1.addImportToModule(source, modulePath, "!environment.production ? StoreDevtoolsModule.instrument() : []")));
+                ], ast_utils_1.addImportToModule(source, modulePath, "StoreModule.forRoot({" + name_utils_1.toPropertyName(name) + ": " + reducerName + "}, {initialState: {" + name_utils_1.toPropertyName(name) + ": " + initName + "}})"), ast_utils_1.addImportToModule(source, modulePath, "EffectsModule.forRoot([" + effectsName + "])"), ast_utils_1.addImportToModule(source, modulePath, "!environment.production ? StoreDevtoolsModule.instrument() : []")));
             }
             else {
                 ast_utils_1.insert(host, modulePath, common.concat(ast_utils_1.addImportToModule(source, modulePath, "StoreModule.forFeature('" + name_utils_1.toPropertyName(name) + "', " + reducerName + ", {initialState: " + initName + "})"), ast_utils_1.addImportToModule(source, modulePath, "EffectsModule.forFeature([" + effectsName + "])")));
